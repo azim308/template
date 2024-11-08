@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -18,6 +18,11 @@
             width: 100%;
             height: auto;
         }
+
+        /* Hide loader initially */
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 
@@ -27,6 +32,24 @@
             <input type="file" id="imageInput" class="mb-4">
             <div id="canvas-container" class="relative w-full flex justify-center">
                 <canvas id="canvas" class="border img-fluid"></canvas>
+                <svg id="loader" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
+                    preserveAspectRatio="xMidYMid" width="70" height="70" style="position: absolute; top: 50%; left: 50%; 
+                    transform: translate(-50%, -50%);">
+                    <g>
+                        <circle stroke-linecap="round" fill="none"
+                            stroke-dasharray="50.26548245743669 50.26548245743669" stroke="#290f02" stroke-width="8"
+                            r="32" cy="50" cx="50">
+                            <animateTransform values="0 50 50;360 50 50" keyTimes="0;1" repeatCount="indefinite"
+                                dur="1s" type="rotate" attributeName="transform"></animateTransform>
+                        </circle>
+                        <circle stroke-linecap="round" fill="none" stroke-dashoffset="36.12831551628262"
+                            stroke-dasharray="36.12831551628262 36.12831551628262" stroke="#cfab48" stroke-width="8"
+                            r="23" cy="50" cx="50">
+                            <animateTransform values="0 50 50;-360 50 50" keyTimes="0;1" repeatCount="indefinite"
+                                dur="1s" type="rotate" attributeName="transform"></animateTransform>
+                        </circle>
+                    </g>
+                </svg>
             </div>
             <button id="downloadButton" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Download Image</button>
         </div>
@@ -37,6 +60,16 @@
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
         const downloadButton = document.getElementById("downloadButton");
+        const loader = document.getElementById("loader");
+
+        function showLoader() {
+            loader.classList.remove("hidden");
+        }
+
+        function hideLoader() {
+            loader.classList.add("hidden");
+        }
+
         function resizeCanvas() {
             const container = document.getElementById("canvas-container");
             const aspectRatio = 4 / 3;  // Adjust as needed (4:3 ratio here)
@@ -53,7 +86,7 @@
         }
 
         const baseImage = new Image();
-        baseImage.src = "./WhatsApp Image 2024-10-28 at 1.29.52 PM PNG.png";
+        baseImage.src = "./sanyuktParivar.png";
         baseImage.onload = () => {
             ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
             resizeCanvas();
@@ -83,7 +116,7 @@
                 const formData = new FormData();
                 formData.append('image', file);
                 formData.append('size', 'auto');
-
+                showLoader();
                 try {
                     const response = await fetch('https://utsavgft.pythonanywhere.com/api/remove_background', {
                         method: 'POST',
@@ -106,6 +139,9 @@
                     console.error('Request failed:', error);
                     alert('Request failed: ' + error);
                 }
+                finally {
+                    hideLoader();
+                }
             }
         });
 
@@ -121,6 +157,210 @@
                 link.download = "combined-image.png";
                 link.href = canvas.toDataURL("image/png");
                 link.click();
+            } else {
+                alert("Please upload and process an image first.");
+            }
+        });
+
+        window.addEventListener("resize", resizeCanvas);
+    </script>
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Image Overlay with Download</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Make canvas container responsive */
+        #canvas-container {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+        }
+
+        #canvas {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Hide loader, message, download button, and notifications initially */
+        .hidden {
+            display: none;
+        }
+
+        /* Style for notification pop-ups */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            font-size: 1rem;
+            z-index: 1000;
+        }
+
+        .notification.error {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-screen flex flex-col items-center justify-center">
+        <div class="flex w-full flex-col items-center">
+            <input type="file" id="imageInput" class="mb-4">
+            <div id="canvas-container" class="relative w-full flex justify-center">
+                <canvas id="canvas" class="border img-fluid"></canvas>
+                <svg id="loader" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
+                    preserveAspectRatio="xMidYMid" width="70" height="70" style="position: absolute; top: 50%; left: 50%; 
+                    transform: translate(-50%, -50%);">
+                    <g>
+                        <circle stroke-linecap="round" fill="none"
+                            stroke-dasharray="50.26548245743669 50.26548245743669" stroke="#290f02" stroke-width="8"
+                            r="32" cy="50" cx="50">
+                            <animateTransform values="0 50 50;360 50 50" keyTimes="0;1" repeatCount="indefinite"
+                                dur="1s" type="rotate" attributeName="transform"></animateTransform>
+                        </circle>
+                        <circle stroke-linecap="round" fill="none" stroke-dashoffset="36.12831551628262"
+                            stroke-dasharray="36.12831551628262 36.12831551628262" stroke="#cfab48" stroke-width="8"
+                            r="23" cy="50" cx="50">
+                            <animateTransform values="0 50 50;-360 50 50" keyTimes="0;1" repeatCount="indefinite"
+                                dur="1s" type="rotate" attributeName="transform"></animateTransform>
+                        </circle>
+                    </g>
+                </svg>
+            </div>
+            <p id="waitMessage" class="hidden mt-2 text-gray-500">Please wait for a few minutes...</p>
+            <button id="downloadButton" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hidden">Download
+                Image</button>
+        </div>
+    </div>
+
+    <!-- Notification container -->
+    <div id="notification" class="notification hidden"></div>
+
+    <script>
+        const imageInput = document.getElementById("imageInput");
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const downloadButton = document.getElementById("downloadButton");
+        const loader = document.getElementById("loader");
+        const waitMessage = document.getElementById("waitMessage");
+        const notification = document.getElementById("notification");
+
+        function showLoader() {
+            loader.classList.remove("hidden");
+            waitMessage.classList.remove("hidden"); // Show "Please wait" message
+        }
+
+        function hideLoader() {
+            loader.classList.add("hidden");
+            waitMessage.classList.add("hidden"); // Hide "Please wait" message
+        }
+
+        function showNotification(message, isError = false) {
+            notification.textContent = message;
+            notification.classList.remove("hidden");
+            notification.classList.toggle("error", isError);
+
+            setTimeout(() => {
+                notification.classList.add("hidden");
+            }, 3000);
+        }
+
+        function resizeCanvas() {
+            const container = document.getElementById("canvas-container");
+            const aspectRatio = 4 / 3;
+            const containerWidth = container.offsetWidth;
+
+            canvas.width = containerWidth;
+            canvas.height = containerWidth / aspectRatio;
+
+            if (baseImage.complete) {
+                ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        const baseImage = new Image();
+        baseImage.src = "./sanyuktParivar.png";
+        baseImage.onload = () => {
+            ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+            resizeCanvas();
+        };
+
+        let overlayImage = null;
+
+        function overlayUserImage(userImageSrc) {
+            overlayImage = new Image();
+            overlayImage.src = userImageSrc;
+            overlayImage.onload = () => {
+                const overlayWidth = canvas.width * 0.8;
+                const overlayHeight = canvas.height * 0.8;
+                const centerX = (canvas.width - overlayWidth) / 2;
+                const centerY = (canvas.height - overlayHeight) / 2;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(overlayImage, centerX, centerY, overlayWidth, overlayHeight);
+                ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+            };
+        }
+
+        imageInput.addEventListener("change", async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('image', file);
+                formData.append('size', 'auto');
+
+                showLoader();
+                imageInput.classList.add("hidden");
+                downloadButton.classList.add("hidden")
+                try {
+                    const response = await fetch('https://utsavgft.pythonanywhere.com/api/remove_background', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+
+                        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+                        overlayUserImage(url);
+                        downloadButton.classList.remove("hidden");
+                        showNotification("Image uploaded successfully");
+
+                        imageInput.classList.remove("hidden"); // Show file input again for next upload
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Error:', response.status, errorText);
+                        alert('Error: ' + response.status + ' - ' + errorText);
+                    }
+                } catch (error) {
+                    console.error('Request failed:', error);
+                    showNotification("Request failed. Please try again.", true);
+                } finally {
+                    hideLoader();
+                }
+            }
+        });
+
+        downloadButton.addEventListener("click", () => {
+            if (overlayImage) {
+                ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+                const link = document.createElement("a");
+                link.download = "combined-image.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+
+                showNotification("Image downloaded successfully");
             } else {
                 alert("Please upload and process an image first.");
             }
